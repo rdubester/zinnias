@@ -6,17 +6,18 @@ void setup() {
 PVector[][][] points;
 
 float t = 0;
-float tstep = 0.01;
+float tstep = 0.005;
 
 void draw() {
   
   background(0);
   t += tstep;
+  t %= 1.0;
 
   translate(width/2, height/2);
 
   int circles = 4;
-  int lines = 5;
+  int lines = 6;
   float dtheta = TAU / lines;
   float r = 10;
   float l = 90;
@@ -30,7 +31,8 @@ void draw() {
     dtheta = TAU / lines;
     // for each spoke
     for (int i = 0; i < lines; i++) {
-      //float rdisp = noise(sin(30*i)) * 20;
+      float rprop = i / (float) lines;
+      //float rdisp = noise(30*rprop + sin(TAU * t)) * 50;
       float rdisp = 0;
       float theta = i * dtheta;      
       // for each point along the spoke
@@ -45,10 +47,12 @@ void draw() {
         //float bigN = map(noise(rad * scl / 10 + 50, theta + 30, t/2), 0, 1, -0.5, 0.5);
         //float smallN = map(noise(rad * scl + 50, theta + 20, t), 0, 1, -mg, mg);
         //float n = bigN + smallN;
-        float n = sin(rad / 20);
+        float n = sin(2 * TAU * (t - rad / 200 - (cos(rprop * 5))));
+        n *= 1 - pow((rad / 500), 4);
+        n /= 6;
         
-        float x = rad * sin(theta + n);
-        float y = rad * cos(theta + n);
+        float x = rad * sin(theta + n/2);
+        float y = rad * cos(theta + n/2);
         
         //x += pow(noise(scl * rad + theta), 2)  * mg;
         //y += pow(noise(scl * rad + 3 * theta + 40), 2) * mg;
@@ -77,27 +81,33 @@ void draw() {
         } else {
           int nextSpokes = points[c+1].length;
           TR = points[c+1][(2 * i) % nextSpokes][0];
-          TL = points[c+1][(2 * i + 2) % nextSpokes][0];
+          TL = points[c+1][(2 * (i + 1)) % nextSpokes][0];
         }
 
         PVector mid = PVector.sub(TR, TL).mult(0.5);
-        PVector perp = mid.copy().rotate(-HALF_PI).setMag((a / (float) as) * 40);
+        PVector perp = mid.copy().rotate(-HALF_PI).setMag((a / (float) as) * 50);
         mid.add(TL);
         mid.add(perp);
         float cmag = BL.mag() / 800;
         //println(cmag);
         
-        stroke(lerpColor(color(250, 0, 160),color(180, 0, 80), cmag));
-        fill(lerpColor(color(250, 240, 250),color(200,190,200), (1-cmag)));
+        color s = lerpColor(color(250, 0, 160),color(180, 0, 80), cmag);
+        color f = lerpColor(color(250, 240, 250),color(200,190,200), (1-cmag));
+        f = color(red(f), green(f), blue(f), 100);
+        s = color(red(s), green(s), blue(s), 200);
+        //stroke(255, 200);
+        //fill(color(255, 128, 213, 100));
+        stroke(s);
+        fill(f);
         beginShape();
-        strokeWeight(1.5);
+        strokeWeight(1.3);
         curveVertex(BL.x, BL.y);
         curveVertex(BL.x, BL.y);
         strokeWeight(1.2);
         curveVertex(TL.x, TL.y);
         curveVertex(mid.x, mid.y);
         curveVertex(TR.x, TR.y);
-        strokeWeight(1.5);
+        strokeWeight(1.3);
         curveVertex(BR.x, BR.y);
         curveVertex(BR.x, BR.y);
         endShape();
