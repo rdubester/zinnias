@@ -15,11 +15,12 @@ void draw() {
   t %= 1.0;
 
   translate(width/2, height/2);
+  scale(1.5);
 
   int circles = 4;
   int lines = 6;
   float dtheta = TAU / lines;
-  float r = 10;
+  float r =5;
   float l = 90;
   int arcs = 20;
 
@@ -33,7 +34,7 @@ void draw() {
     for (int i = 0; i < lines; i++) {
       float rprop = i / (float) lines;
       //float rdisp = noise(30*rprop + sin(TAU * t)) * 50;
-      float rdisp = 0;
+      float rdisp = (i % 2) * 20;
       float theta = i * dtheta;      
       // for each point along the spoke
       for (int a = 0; a < arcs; a++) {
@@ -47,7 +48,7 @@ void draw() {
         //float bigN = map(noise(rad * scl / 10 + 50, theta + 30, t/2), 0, 1, -0.5, 0.5);
         //float smallN = map(noise(rad * scl + 50, theta + 20, t), 0, 1, -mg, mg);
         //float n = bigN + smallN;
-        float n = sin(2 * TAU * (t - rad / 200 - (cos(rprop * 5))));
+        float n = sin(2 * TAU * (t - rad / 100 - (cos(rprop * 5))));
         n *= 1 - pow((rad / 500), 4);
         n /= 6;
         
@@ -93,12 +94,13 @@ void draw() {
         
         color s = lerpColor(color(250, 0, 160),color(180, 0, 80), cmag);
         color f = lerpColor(color(250, 240, 250),color(200,190,200), (1-cmag));
-        f = color(red(f), green(f), blue(f), 100);
-        s = color(red(s), green(s), blue(s), 200);
-        //stroke(255, 200);
+        //f = color(red(f), green(f), blue(f), 100);
+        //s = color(red(s), green(s), blue(s), 200);
+        //stroke(color(209, 11, 200));
+        //fill(color(255));
         //fill(color(255, 128, 213, 100));
-        stroke(s);
-        fill(f);
+        //stroke(s);
+        //fill(f);
         beginShape();
         strokeWeight(1.3);
         curveVertex(BL.x, BL.y);
@@ -110,7 +112,7 @@ void draw() {
         strokeWeight(1.3);
         curveVertex(BR.x, BR.y);
         curveVertex(BR.x, BR.y);
-        endShape();
+        endShape(CLOSE);
       }
     }
     //noLoop();
