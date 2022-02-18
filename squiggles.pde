@@ -1,5 +1,5 @@
 void setup() {
-  size(800, 800);
+  size(800, 800, P2D);
   background(0);
 }
 
@@ -10,7 +10,22 @@ float tstep = 0.005;
 
 void draw() {
   
-  background(0);
+  loadPixels();
+  float step = 0.01;
+  float xoff = 0;
+  for(int i = 0; i < width; i++){
+    float yoff = 0;
+    for(int j = 0; j < height; j++){
+      float n = noise(xoff, yoff, 0.04*sin(TAU*t) + 0.1*cos(TAU*t));
+      color cl = #FFFFFB;
+      color cd = #0530F1;
+      pixels[height * i + j] = lerpColor(cl, cd, n);
+      yoff += step;
+    }
+    xoff += step ;
+  }
+  updatePixels();
+  
   t += tstep;
   t %= 1.0;
 
@@ -20,8 +35,8 @@ void draw() {
   int circles = 4;
   int lines = 6;
   float dtheta = TAU / lines;
-  float r =5;
-  float l = 90;
+  float r = 20;
+  float l = 60;
   int arcs = 20;
 
   points = new PVector[circles][][];
@@ -48,7 +63,7 @@ void draw() {
         //float bigN = map(noise(rad * scl / 10 + 50, theta + 30, t/2), 0, 1, -0.5, 0.5);
         //float smallN = map(noise(rad * scl + 50, theta + 20, t), 0, 1, -mg, mg);
         //float n = bigN + smallN;
-        float n = sin(2 * TAU * (t - rad / 100 - (cos(rprop * 5))));
+        float n = 1.4* sin(2 * TAU * (t - rad / 100 - (cos(rprop * 5))));
         n *= 1 - pow((rad / 500), 4);
         n /= 6;
         
@@ -67,6 +82,9 @@ void draw() {
     r += l;
   }
   
+  color[] colors = {color(0), #EA0BA3, #6236CD, color(255)};
+  stroke(0);
+
   for (int c = points.length - 2; c >= 0; c--) {
     int spokes = points[c].length;
     for (int i = spokes-1; i >= 0; i--) {
@@ -86,22 +104,31 @@ void draw() {
         }
 
         PVector mid = PVector.sub(TR, TL).mult(0.5);
-        PVector perp = mid.copy().rotate(-HALF_PI).setMag((a / (float) as) * 50);
+        PVector perp = mid.copy().rotate(-HALF_PI).setMag((a / (float) as) * 30);
         mid.add(TL);
         mid.add(perp);
-        float cmag = BL.mag() / 800;
+        float cmag = BL.mag() / 300;
         //println(cmag);
+        stroke(0);
         
-        color s = lerpColor(color(250, 0, 160),color(180, 0, 80), cmag);
-        color f = lerpColor(color(250, 240, 250),color(200,190,200), (1-cmag));
-        //f = color(red(f), green(f), blue(f), 100);
-        //s = color(red(s), green(s), blue(s), 200);
-        //stroke(color(209, 11, 200));
-        //fill(color(255));
-        //fill(color(255, 128, 213, 100));
-        //stroke(s);
+        push();
+        //translate(mid.x, mid.y);
+        //PVector dir = PVector.mult(perp,2);
+        //translate(dir.x, dir.y);
+        //scale(1);
+
+        color fl = lerpColors(colors, (float) a / arcs, false);
+        //color fd = color(red(fl) - 10, green(fl) - 80, blue(fl) - 80);
+        //color f = lerpColor(fl, fd, 0.8 * BL.x * BL.y / (width  * height));
+        fill(fl);
+        
         //fill(f);
         beginShape();
+        stroke(fl);
+        if(a == as - 1) {
+          noStroke();
+          noFill(); 
+        }
         strokeWeight(1.3);
         curveVertex(BL.x, BL.y);
         curveVertex(BL.x, BL.y);
@@ -113,40 +140,26 @@ void draw() {
         curveVertex(BR.x, BR.y);
         curveVertex(BR.x, BR.y);
         endShape(CLOSE);
+        pop();
       }
     }
     //noLoop();
   }
+  noStroke();
+  for(int i = 0; i < 500; i++) {
+    float x = 0.12*i*sin(137.5 * i);
+    float y = 0.12*i*cos(137.5 * i);
+    color[] bud_colors = {#CC7314, #FFE482, #FFA03B};
+    stroke(#CC7314, 100);
+    fill(lerpColors(bud_colors, i / 500.0, false));
+    circle(x,y,10);
+  }
+  
+  for(int i = 0; i < 50; i++) {
+    float x = 0.33*i*sin(137.5 * i);
+    float y = 0.33*i*cos(137.5 * i);
+    color[] bud_colors = {#C08208, color(255), #C08208};
+    fill(lerpColors(bud_colors, i / 50.0, false));
+    circle(x,y,5);
+  }
 }
-
-//stroke((360 / circles) * c, 255, 255);
-//stroke(240, 255, 100);
-//int curves = 10;
-//for (int b = 0; b < curves; b++) {
-//  PVector startv = PVector.lerp(v0, v1, b * 1.0 / curves);
-//  PVector endv = PVector.lerp(vv0, vv1, b * 1.0 / curves);
-
-//  PVector startvv = PVector.lerp(v0, v1, (b+1) * 1.0 / curves);
-//  PVector endvv = PVector.lerp(vv0, vv1, (b+1) * 1.0 / curves);
-
-//  PVector m = PVector.lerp(startvv, endvv, 0.5);
-
-//  bezier(startv.x, startv.y, m.x, m.y, m.x, m.y, endv.x, endv.y);
-//}
-//line(x0, y0, x1, y1);
-
-
-
-//PVector TL = BL.copy().setMag(segLength).add(BL);
-//PVector TR = BR.copy().setMag(segLength).add(BR);
-//PVector TTL = TL.copy().setMag(segLength).add(TL);
-//PVector TTR = TR.copy().setMag(segLength).add(TR);
-
-//PVector lMid = PVector.lerp(TTL, TTR, 0.25);
-//PVector rMid = PVector.lerp(TTL, TTR, 0.75);
-//PVector mid = PVector.lerp(TTL, TTR, 0.5);
-
-//PVector mid = PVector.lerp(
-//  PVector.sub(TL, BL).add(TL),
-//  PVector.sub(TR, BR).add(TR),
-//  0.5);
